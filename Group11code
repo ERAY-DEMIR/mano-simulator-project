@@ -1,0 +1,270 @@
+       ORG 250
+CIF,   SKI
+       BUN CIF   / Flag=0, branch to check again
+       INP       / Flag=1, input character   
+       STA CHR   /Store number in variable 
+       LDA CHR   / Load number to AC
+       CIL
+       CIL
+       CIL 
+       CIL
+       CIL 
+       CIL
+       CIL
+       CIL      /Output is 8 bit. But computer 16 bit. For getting 1 in E we need to Cırculate left to 8 times 
+       STA TMP1    / Then store in tmp1
+LOP,   LDA TMP1
+       CIL         /CIRCULATE LEFT ONE MORE TİMES 
+       STA TMP1
+       SZE        /AFTER THE CİRCULATİON check if e is 0 or not 
+       BUN ONE    /If E is one goes to ONE 
+       BUN ZRO    /Else goes to ZRO
+ONE,   LDA TMP2
+       CLE        /If there is sth different than 0 it clears
+       CME        /Complement E
+       CIL        /Then CIRCULATE LEFT
+       STA TMP2  /TMP2 related to BCD3(ALWAYS0),BCD2,BCD1,BCD0 
+       ISZ CTR   /Increment counter if it is not 0 
+       BUN CHK
+       BUN FIN   /If it is 0 goes to FIN and stop the program
+ZRO,   LDA TMP2  /Load tmp2 to AC 
+       CIL         
+       STA TMP2  / Then we need to keep value
+       ISZ CTR   / Increment and check whether 0 or not
+       BUN CHK
+       BUN FIN   /If it is 0 goes to FIN and stop the program
+CHK,   LDA TMP2
+       CMA
+       INC
+       ADD FO4
+       SNA   / WHEN TMP2 VALUES BİGGER THAN 4 İT MEANS THAT BCD>=5. THUS İT İS NEGATİVE.IT SKİPS NEXT İNSTRUCTİON 
+       BUN LOP
+       LDA TMP2  / LOADS TMP2 TO AC FOR ADDİTİON 
+       INC
+       INC 
+       INC
+       STA TMP2
+       ISZ CTR2 /CTR2 FOR İMPLEMENTİNG SUMATİON ONLY ONCE.THUS İT İS SET TO -1
+       BUN LOP
+LOP1,  LDA TMP1  /LOP2 FOR BCD0 CHECKER
+       CIL
+       STA TMP1
+       SZE       /AFTER THE CİRCULATİON check if e is 0 or not       
+       BUN ONE1    /If E is one goes to ONE1
+       BUN ZRO1    /Else goes to ZRO1
+ONE1,  LDA TMP2
+       CLE
+       CME
+       CIL 
+       STA TMP2 
+       ISZ CTR   /Increment and check whether counter 0 or not
+       BUN X     / IF IT İS NOT 0 İT GOES X FOR CHECKİNG WHETHER BCD0>=5 OR NOT 
+       BUN FIN   /If it is 0 goes to FIN and stop the program  
+ZRO1,  LDA TMP2
+       CIL
+       STA TMP2
+       ISZ CTR    / Increment and check whether 0 or not
+       BUN X
+       BUN FIN   /If it is 0 goes to FIN and stop the program
+X,     LDA TMP2   /Y FOR BCD0 CHECHKER
+       CMA
+       INC
+       ADD TMP3
+       SNA
+       SPA                 
+       BUN CHK1
+       BUN LOP2
+CHK1,  LDA CTR2  /WE NEED TO LOAD BECAUSE FROM PREVİOUS SUMATİON IT İS 0
+       INC     /WE NEED TO MAKE -1. THUS, FİRSTLY İNCREASE VALUE BY 1.
+       CMA     /THEN COMPLEMENT
+       INC      / THEN İNCREMENT. FINALLY WE MADE -1  
+       LDA TMP2
+       INC    / WHEN BSD0>= 5. WE NEED TO İNCREMENT VALUE AS 3 
+       INC 
+       INC 
+       STA TMP2
+      
+LOP2,  LDA TMP1  /LOP2 FOR BCD0 CHECKER 
+       CIL
+       STA TMP1
+       SZE
+       BUN ONE2
+       BUN ZRO2
+ONE2,  LDA TMP2
+       CLE
+       CME
+       CIL
+       STA TMP2  
+       ISZ CTR   /Increment and check whether counter 0 or not 
+       BUN Y
+       BUN FIN   /If it is 0 goes to FIN and stop the program
+ZRO2,  LDA TMP2
+       CIL
+       STA TMP2
+       ISZ CTR  /Increment and check whether counter 0 or not
+       BUN Y    / IF IT İS NOT 0 İT GOES Y FOR CHECKİNG WHETHER BCD0>=5 OR NOT 
+       BUN FIN   /If it is 0 goes to FIN and stop the program 
+Y,     LDA TMP2  /Y FOR BCD0 CHECHKER.
+       CMA
+       INC
+       ADD TMP4    /ADD tmp4 to tmp2
+       SPA         /If it is positive skip the next instruction        
+       BUN CHK2    /addition part
+       BUN LOP7    /If the number is smaller than 0025 go to lop7
+CHK2,  LDA CTR2   /WE NEED TO LOAD BECAUSE FROM PREVİOUS SUMATİON IT İS 0
+       INC        /WE NEED TO MAKE -1. THUS, FİRSTLY İNCREASE VALUE BY 1.
+       CMA        /THEN COMPLEMENT 
+       INC        / THEN İNCREMENT. FINALLY WE MADE -1  
+       LDA TMP2
+       INC         / WHEN BSD0>= 5. WE NEED TO İNCREMENT VALUE AS 3 
+       INC
+       INC
+       STA TMP2
+       BUN LOP3
+LOP7,  LDA TMP1     /Loop names called as 7 cheechs whether the number is bigger than 45 or 50 or smaller than 50.
+       CIL          /When we CIL number from 002X values it can be 004X or 005X. WE need to check
+       STA TMP1
+       SZE
+       BUN ONE7
+       BUN ZRO7
+ONE7,  LDA TMP2
+       CLE
+       CME
+       CIL
+       STA TMP2
+       ISZ CTR
+       BUN A
+       BUN FIN
+ZRO7,  LDA TMP2
+       CIL
+       STA TMP2
+       ISZ CTR
+       BUN A
+       BUN FIN
+A,     LDA TMP2  / This loop for chencking whether  tmp2 <50 or not
+       CMA    
+       INC 
+       ADD F50
+       SPA
+       BUN Z
+       BUN A1
+A1,    LDA TMP2
+       CMA
+       INC 
+       ADD F45   / This loop for chencking whether  tmp2 <45 or not
+       SNA      / If accumulator is negative it means that number is bigger than 0045
+       BUN LOP3
+       BUN A2
+A2,    LDA TMP2
+       INC
+       INC 
+       INC
+       STA TMP2     
+LOP3,  LDA TMP1  /Z FOR BCD1 CHECHKER.
+       CIL
+       STA TMP1
+       SZE
+       BUN ONE3
+       BUN ZRO3              
+ONE3,  LDA TMP2
+       CLE
+       CME
+       CIL  
+       STA TMP2
+       ISZ CTR     /Increment and check whether counter 0 or not
+       BUN Z
+       BUN FIN     /If it is 0 goes to FIN and stop the program
+ZRO3,  LDA TMP2
+       CIL
+       STA TMP2
+       ISZ CTR    /Increment and check whether counter 0 or not
+       BUN Z       / IF IT İS NOT 0 İT GOES X FOR CHECKİNG WHETHER BCD0>=5 AND BCD1 >=0 OR NOT 
+       BUN FIN    /If it is 0 goes to FIN and stop the program   
+Z,     LDA TMP2   /Z FOR BCD1 CHECHKER.
+       CMA
+       INC
+       ADD TMP5
+       SPA
+       SNA  
+       BUN N   / If  the value is bigger than 0055 İT goes to P
+       BUN P   / If the value is between 0050 and 0055 it does
+P,     LDA TMP6  /hex 0055 is minimum value when both bcd1 and bcd0 
+       ADD TMP2
+       STA TMP2
+       BUN LOP4
+N,     LDA TMP7   /hex 0050 is the minimum value that BCD1 is greater than 5
+       ADD TMP2
+       STA TMP2
+       BUN LOP4
+LOP4,  LDA TMP1
+       CIL
+       STA TMP1 
+       SZE
+       BUN ONE4
+       BUN ZRO4 
+ONE4,  LDA TMP2
+       CLE
+       CME
+       CIL 
+       STA TMP2 
+       ISZ CTR
+       BUN T
+       BUN FIN     /If it is 0 goes to FIN and stop the program
+ZRO4,  LDA TMP2
+       CIL
+       STA TMP2
+       ISZ CTR
+       BUN T
+       BUN FIN     /If it is 0 goes to FIN and stop the program
+T,     LDA TMP2
+       CMA 
+       INC
+       ADD TMP8
+       SNA 
+       SPA  
+       BUN S
+       BUN LOP5
+S,     LDA TMP2
+       INC        / WHEN BSD0>= 5. WE NEED TO İNCREMENT VALUE AS 3 
+       INC
+       INC
+       STA TMP2            
+LOP5,  LDA TMP1
+       CIL
+       STA TMP1 
+       SZE
+       BUN ONE5
+       BUN ZRO5
+ONE5,  LDA TMP2
+       CLE
+       CME
+       CIL 
+       STA TMP2 
+       ISZ CTR
+       BUN K
+       BUN FIN     /If it is 0 goes to FIN and stop the program
+ZRO5,  LDA TMP2
+       CIL
+       STA TMP2
+       ISZ CTR
+       BUN K
+       BUN FIN    /If it is 0 goes to FIN and stop the program
+K,     BUN FIN    /Terminates the program      
+FIN,   HLT
+CHR,   HEX 0
+TMP1,  HEX 0
+TMP2,  HEX 0 
+TMP3,  HEX 0015
+TMP4,  HEX 0025
+TMP5,  HEX 0055
+TMP6,  HEX 0033 
+TMP7,  HEX 0030
+TMP8,  HEX 0105
+CTR,   DEC -8
+CTR2,  DEC -1
+FO4,   HEX 0004
+F50,   HEX 0050
+F45,   HEX 0045
+       END
+        
+   
